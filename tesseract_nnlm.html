@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesseract — NNLM: NAM-Native Language Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:     #0D1B3E;
+    --navy-mid: #152345;
+    --navy-lgt: #1E3060;
+    --teal:     #0EA5E9;
+    --teal-dim: #0369A1;
+    --amber:    #F59E0B;
+    --green:    #22D3A5;
+    --green-dk: #0F6E56;
+    --green-mid:#1D9E75;
+    --white:    #FFFFFF;
+    --ice:      #EEF5FF;
+    --muted:    #7A9CC4;
+    --dark:     #060E20;
+    --purple:   #8B5CF6;
+    --purple-dk:#6D28D9;
+    --coral:    #F87171;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--navy); color:var(--ice); font-family:'DM Sans',sans-serif; font-size:13px; line-height:1.6; }
+  .page { width:940px; margin:0 auto; padding:48px 56px 56px; }
+
+  /* HEADER */
+  .header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px; padding-bottom:20px; border-bottom:1px solid var(--navy-lgt); }
+  .logo { font-family:'DM Mono',monospace; font-size:22px; letter-spacing:7px; color:var(--white); line-height:1; }
+  .logo-sub { font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:2.5px; color:var(--teal); text-transform:uppercase; margin-top:5px; }
+  .doc-title { font-family:'DM Serif Display',serif; font-size:13px; color:var(--muted); font-style:italic; text-align:right; }
+  .doc-sub { font-family:'DM Mono',monospace; font-size:9px; color:var(--navy-lgt); letter-spacing:1px; margin-top:3px; text-align:right; }
+
+  /* LEAD */
+  .lead { margin-bottom:36px; }
+  .lead-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); margin-bottom:10px; }
+  .lead-title { font-family:'DM Serif Display',serif; font-size:28px; color:var(--white); line-height:1.25; margin-bottom:12px; }
+  .lead-title em { color:var(--teal); font-style:italic; }
+  .lead-body { font-size:13px; color:var(--muted); max-width:700px; line-height:1.75; }
+  .lead-body strong { color:var(--ice); font-weight:500; }
+
+  /* SECTION LABEL */
+  .section-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--navy-lgt); }
+
+  /* STAGE NAV */
+  .stage-nav { display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap; }
+  .stage-pill { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.5px; padding:5px 14px; border-radius:20px; border:1px solid var(--navy-lgt); color:var(--muted); background:transparent; cursor:pointer; transition:all .18s; user-select:none; }
+  .stage-pill:hover { border-color:var(--teal-dim); color:var(--teal); }
+  .stage-pill.active { background:rgba(14,165,233,0.1); border-color:var(--teal); color:var(--teal); }
+
+  /* DIAGRAM PANEL */
+  .diagram-panel { display:grid; grid-template-columns:1fr 360px; gap:28px; margin-bottom:36px; align-items:start; }
+  .diagram-svg-wrap { background:#070F20; border:1px solid var(--navy-lgt); border-radius:8px; padding:24px; min-height:280px; display:flex; align-items:center; justify-content:center; }
+  .diagram-svg-wrap svg { width:100%; height:auto; }
+  .diagram-explain { padding-top:4px; }
+  .dim-badge { display:inline-block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:3px 10px; border-radius:3px; background:rgba(34,211,165,0.1); border:1px solid rgba(34,211,165,0.25); color:var(--green); text-transform:uppercase; margin-bottom:12px; }
+  .explain-title { font-family:'DM Serif Display',serif; font-size:21px; color:var(--white); margin-bottom:10px; line-height:1.3; }
+  .explain-body { font-size:12px; color:var(--muted); line-height:1.85; }
+  .explain-body strong { color:var(--ice); font-weight:500; }
+  .explain-body em { color:var(--teal); font-style:italic; }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom:24px; }
+  .progress-track { height:2px; background:var(--navy-lgt); border-radius:1px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--teal); border-radius:1px; transition:width .3s ease; }
+  .progress-label { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; margin-top:6px; }
+
+  /* NAV */
+  .nav-row { display:flex; gap:10px; margin-top:20px; }
+  .nav-btn { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.5px; padding:8px 20px; border-radius:4px; border:1px solid var(--navy-lgt); background:transparent; color:var(--muted); cursor:pointer; transition:all .18s; }
+  .nav-btn:hover { border-color:var(--teal); color:var(--teal); }
+  .nav-btn.primary { background:rgba(14,165,233,0.1); border-color:var(--teal); color:var(--teal); }
+
+  /* VS TABLE */
+  .vs-section { margin-bottom:36px; }
+  .vs-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .vs-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; padding:8px 14px; text-align:left; }
+  .vs-table th:first-child { background:var(--navy-lgt); color:var(--muted); width:200px; }
+  .vs-table th:nth-child(2) { background:#2A1800; color:var(--amber); }
+  .vs-table th:nth-child(3) { background:rgba(14,100,70,0.3); color:var(--green); }
+  .vs-table td { padding:9px 14px; border-bottom:1px solid var(--navy-lgt); vertical-align:top; font-size:11.5px; }
+  .vs-table tr:nth-child(even) td { background:rgba(10,20,40,0.3); }
+  .vs-table td:first-child { color:var(--ice); font-weight:500; }
+  .vs-table td:nth-child(2) { color:var(--muted); }
+  .vs-table td:nth-child(3) { color:var(--muted); }
+  .vs-table td strong { color:var(--ice); font-weight:500; }
+  .cross-text { color:var(--amber); }
+  .check-text { color:var(--green); }
+
+  /* PROPERTIES GRID */
+  .props-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:36px; }
+  .prop-card { background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:14px 16px; }
+  .prop-card.teal { border-top:2px solid var(--teal); }
+  .prop-card.green { border-top:2px solid var(--green); }
+  .prop-card.amber { border-top:2px solid var(--amber); }
+  .prop-card.purple { border-top:2px solid var(--purple); }
+  .prop-title { font-size:12px; font-weight:500; color:var(--white); margin-bottom:5px; }
+  .prop-body { font-size:11px; color:var(--muted); line-height:1.65; }
+  .prop-body strong { color:var(--ice); font-weight:500; }
+
+  /* SESSION SECTION */
+  .session-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:36px; }
+  .session-card { background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:14px 16px; }
+  .session-card.bad { border-left:3px solid var(--amber); }
+  .session-card.good { border-left:3px solid var(--green); }
+  .session-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+  .session-card.bad .session-label { color:var(--amber); }
+  .session-card.good .session-label { color:var(--green); }
+  .session-body { font-size:11.5px; color:var(--muted); line-height:1.7; }
+  .session-body strong { color:var(--ice); font-weight:500; }
+
+  /* FOOTER */
+  .footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--navy-lgt); display:flex; justify-content:space-between; align-items:center; }
+  .footer-left { font-family:'DM Mono',monospace; font-size:9px; color:var(--navy-lgt); letter-spacing:1px; }
+  .footer-right a { font-family:'DM Mono',monospace; font-size:9px; color:var(--teal); text-decoration:none; letter-spacing:.5px; }
+
+  @media print {
+    body { background:var(--navy); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .page { padding:32px 40px; }
+    .nav-row, .stage-nav { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">TESSERACT</div>
+      <div class="logo-sub">Deterministic AI Infrastructure</div>
+    </div>
+    <div>
+      <div class="doc-title">NNLM — NAM-Native Language Model</div>
+      <div class="doc-sub">Grounded Generation · Structural Citation · Enforced Rejection</div>
+    </div>
+  </div>
+
+  <!-- LEAD -->
+  <div class="lead">
+    <div class="lead-eyebrow">The language layer</div>
+    <div class="lead-title">Language that is grounded by construction,<br><em>not by convention.</em></div>
+    <div class="lead-body">
+      NNLM is not a language model with retrieval bolted on. It is a <strong>four-stage pipeline</strong> where every claim the system makes traces to a specific retrieved record, every citation is a structural output token, and rejection — saying "I don't know" — is a <strong>first-class outcome enforced by the architecture</strong>. The generation model cannot assert without evidence. It is structurally prevented from doing so.
+    </div>
+  </div>
+
+  <!-- STAGE PILLS -->
+  <div class="stage-nav" id="stage-nav"></div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label"></div>
+  </div>
+
+  <!-- DIAGRAM PANEL -->
+  <div class="diagram-panel">
+    <div class="diagram-svg-wrap" id="diagram-svg"></div>
+    <div class="diagram-explain">
+      <div class="dim-badge" id="dim-badge"></div>
+      <div class="explain-title" id="explain-title"></div>
+      <div class="explain-body" id="explain-body"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prev-btn" onclick="move(-1)">← Prev</button>
+        <button class="nav-btn primary" id="next-btn" onclick="move(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURAL PROPERTIES -->
+  <div class="section-label">Architectural properties</div>
+  <div class="props-grid" style="grid-template-columns:1fr 1fr 1fr;">
+    <div class="prop-card teal">
+      <div class="prop-title">Grounding by construction</div>
+      <div class="prop-body">Grounding is a <strong>pipeline invariant</strong>, not a model behavior. The generation model receives only pre-filtered, pre-scored evidence. It cannot access its training knowledge freely — it operates within the boundary set by the selection output.</div>
+    </div>
+    <div class="prop-card green">
+      <div class="prop-title">Citation as structural output</div>
+      <div class="prop-body">Citations are <strong>first-class output tokens</strong>, not post-processing. The generation model is trained to tag every factual claim with the record that supports it. Missing citations are measurable failures. False citations are identifiable.</div>
+    </div>
+    <div class="prop-card amber">
+      <div class="prop-title">Rejection over hallucination</div>
+      <div class="prop-body">When the selection stage finds insufficient evidence, the pipeline produces a <strong>structurally determined rejection</strong> — not a generated "I'm not sure." The rejection is based on concrete scores against a configurable threshold. No hallucinated response is produced.</div>
+    </div>
+    <div class="prop-card purple">
+      <div class="prop-title">Soft prompt injection</div>
+      <div class="prop-body">The selection stage passes <strong>learned embeddings</strong> — not text — to the generation model. These carry structured relevance signals: which records matter, how strongly, and the overall evidence confidence. The model is told what matters, not left to infer it.</div>
+    </div>
+    <div class="prop-card teal">
+      <div class="prop-title">Per-stage measurability</div>
+      <div class="prop-body">Every stage boundary is <strong>observable and auditable</strong>. Encoding output, retrieval candidates, selection scores, and generation citations are all inspectable. When a response is wrong, you can trace it to the exact stage that failed — not just "the model."</div>
+    </div>
+    <div class="prop-card green">
+      <div class="prop-title">Independent stage improvement</div>
+      <div class="prop-body">Each stage has <strong>explicit input/output contracts</strong>. Better entity resolution? Improve the encoder. Missing records? Improve NAM coverage. Too much noise? Improve the selection model. No stage requires another to be retrained.</div>
+    </div>
+  </div>
+
+  <!-- VS RAG -->
+  <div class="vs-section">
+    <div class="section-label">NNLM vs RAG</div>
+    <table class="vs-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>RAG</th>
+          <th>NNLM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Retrieval mechanism</td>
+          <td><span class="cross-text">Similarity ranking</span> — probabilistic, non-deterministic</td>
+          <td><span class="check-text">Address navigation</span> — deterministic, same query always returns same records</td>
+        </tr>
+        <tr>
+          <td>Noise filtering</td>
+          <td><span class="cross-text">None</span> — all retrieved context passed to the model</td>
+          <td><span class="check-text">Record selection stage</span> removes noise before generation sees it</td>
+        </tr>
+        <tr>
+          <td>Grounding mechanism</td>
+          <td><span class="cross-text">Behavioral</span> — ask the model to use context; hope it does</td>
+          <td><span class="check-text">Architectural</span> — model is constrained to selected evidence only</td>
+        </tr>
+        <tr>
+          <td>Citation</td>
+          <td><span class="cross-text">Cosmetic</span> — added by post-processing or prompted formatting</td>
+          <td><span class="check-text">Structural</span> — first-class output token trained into the model</td>
+        </tr>
+        <tr>
+          <td>Rejection</td>
+          <td><span class="cross-text">Generated phrase</span> — "I'm not sure" from training distribution</td>
+          <td><span class="check-text">Structural signal</span> — selection stage makes a measurable, scored decision</td>
+        </tr>
+        <tr>
+          <td>Context delivery</td>
+          <td><span class="cross-text">Text stuffing</span> — documents pasted into prompt, model re-parses</td>
+          <td><span class="check-text">Soft prompt injection</span> — learned relevance embeddings condition generation directly</td>
+        </tr>
+        <tr>
+          <td>Auditability</td>
+          <td><span class="cross-text">Opaque</span> — no way to trace a claim to a retrieval decision</td>
+          <td><span class="check-text">Full chain</span> — query → encoding → retrieval → selection → citation all inspectable</td>
+        </tr>
+        <tr>
+          <td>Failure mode</td>
+          <td><span class="cross-text">Silent hallucination</span> — confident wrong answer with no signal</td>
+          <td><span class="check-text">Explicit rejection</span> — measurable, threshold-based, auditable</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SESSION AND CONTEXT -->
+  <div class="section-label">Multi-turn conversation — session memory</div>
+  <div class="session-grid">
+    <div class="session-card bad">
+      <div class="session-label">Context window approach — what NNLM does not do</div>
+      <div class="session-body">
+        Most conversational AI handles multi-turn interaction by <strong>concatenating previous turns into the prompt</strong>. This has hard limits: context windows fill up, earlier turns get less attention as conversation grows, the model re-processes the entire conversation at every turn, and there is no structural representation of what was discussed — just accumulated text.
+      </div>
+    </div>
+    <div class="session-card good">
+      <div class="session-label">Session memory — what NNLM does</div>
+      <div class="session-body">
+        Each conversation is a <strong>session with structured state</strong> — entity history, resolved references, topic continuity — backed by NAM's addressing system. The encoder resolves pronouns and coreferences against the session before generating a query plan. <strong>Downstream stages are unaware of session context</strong> — they receive a fully resolved query plan, nothing more.
+      </div>
+    </div>
+  </div>
+  <div style="background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:16px 20px; margin-bottom:36px;">
+    <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:12px;">Multi-turn resolution example</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:6px;">Turn 1</div>
+        <div style="font-size:11.5px; color:var(--muted); line-height:1.7;">User: <strong style="color:var(--ice)">"What is Neural Addressable Memory?"</strong><br>Encoder identifies entity: NAM. Query plan generated. Session entity history updated.</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:6px;">Turn 2</div>
+        <div style="font-size:11.5px; color:var(--muted); line-height:1.7;">User: <strong style="color:var(--ice)">"Who created it?"</strong><br>Encoder resolves <em style="color:var(--teal)">"it"</em> → NAM from session context. Query plan: "Who created NAM?" — fully resolved before retrieval.</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:6px;">Turn 3</div>
+        <div style="font-size:11.5px; color:var(--muted); line-height:1.7;">User: <strong style="color:var(--ice)">"What are the design principles?"</strong><br>Encoder carries topic continuity — NAM — forward. Query plan targets NAM design principles specifically. No prompt stuffing at any turn.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">TESSERACT · NNLM NAM-NATIVE LANGUAGE MODEL · CONFIDENTIAL · 2026</div>
+    <div class="footer-right"><a href="https://github.com/tdenton8772/nnlm-documentation">github.com/tdenton8772/nnlm-documentation</a></div>
+  </div>
+
+</div>
+<script>
+const stages = [
+  {
+    label: "Encoding",
+    badge: "Stage 1 — encoder",
+    title: "Understand the question. Build the plan.",
+    body: `The encoder transforms a natural language query into a <strong>structured query plan</strong> that NAM can execute. It identifies entities, resolves surface forms to canonical identifiers, detects intent, and produces the NAM parameters needed for retrieval. <strong>The encoder does not retrieve — it produces instructions for retrieval.</strong> If it cannot resolve an entity or determine intent, it signals uncertainty — which propagates through the pipeline. Query quality starts here. If the query plan is wrong, everything downstream is wrong. The encoder is the bridge between natural language and structured memory.`,
+    svg: `<svg width="100%" viewBox="0 0 440 260">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="108" width="90" height="36" rx="5" fill="#0A1428" stroke="#1E3060" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#7A9CC4" x="65" y="124" text-anchor="middle">user query</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#4A6080" x="65" y="138" text-anchor="middle">natural language</text>
+      <line x1="110" y1="126" x2="128" y2="126" stroke="#7A9CC4" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="130" y="68" width="150" height="116" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="13" font-weight="500" fill="#EEF5FF" x="205" y="94" text-anchor="middle">Encoder</text>
+      <line x1="148" y1="104" x2="272" y2="104" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="122" text-anchor="start">entity identification</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="138" text-anchor="start">surface → canonical</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="154" text-anchor="start">intent detection</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="170" text-anchor="start">NAM query params</text>
+      <line x1="280" y1="126" x2="298" y2="126" stroke="#22D3A5" stroke-width="1.2" marker-end="url(#arr)"/>
+      <rect x="300" y="96" width="120" height="60" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="360" y="120" text-anchor="middle">query plan</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="360" y="137" text-anchor="middle">structured</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="360" y="150" text-anchor="middle">resolved</text>
+      <rect x="130" y="215" width="150" height="28" rx="4" fill="rgba(139,92,246,0.08)" stroke="rgba(139,92,246,0.25)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="205" y="234" text-anchor="middle">session context input</text>
+      <line x1="205" y1="215" x2="205" y2="184" stroke="#8B5CF6" stroke-width="0.5" stroke-dasharray="3 3" marker-end="url(#arr)"/>
+    </svg>`
+  },
+  {
+    label: "Retrieval",
+    badge: "Stage 2 — NAM retrieval",
+    title: "Deterministic navigation. Broad by design.",
+    body: `The retrieval stage executes the query plan against NAM. NAM navigates its geometric address space and returns <strong>candidate records with full metadata</strong> — ontology type, match geometry (point, line, or plane match), confidence indicators, and entity associations. Retrieval is <strong>broad by design</strong> — it returns everything that structurally matches, not just what's likely relevant. The same query plan always returns the same records. This determinism is the foundation of reproducibility. Relevance filtering is not retrieval's job — that belongs to the next stage.`,
+    svg: `<svg width="100%" viewBox="0 0 440 260">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="108" width="80" height="36" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#22D3A5" x="60" y="124" text-anchor="middle">query plan</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#4A6080" x="60" y="138" text-anchor="middle">from encoder</text>
+      <line x1="100" y1="126" x2="118" y2="126" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="120" y="70" width="140" height="112" rx="6" fill="#0A1428" stroke="#1D9E75" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="13" font-weight="500" fill="#EEF5FF" x="190" y="96" text-anchor="middle">NAM</text>
+      <line x1="138" y1="106" x2="246" y2="106" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="138" y="124" text-anchor="start">address navigation</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="138" y="140" text-anchor="start">geometric match</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="138" y="156" text-anchor="start">deterministic</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="138" y="172" text-anchor="start">metadata attached</text>
+      <line x1="260" y1="126" x2="278" y2="126" stroke="#0EA5E9" stroke-width="1.2" marker-end="url(#arr)"/>
+      <rect x="280" y="80" width="140" height="92" rx="5" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="350" y="104" text-anchor="middle">candidate records</text>
+      <line x1="290" y1="114" x2="410" y2="114" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="292" y="130" text-anchor="start">+ ontology type</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="292" y="146" text-anchor="start">+ match geometry</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="292" y="162" text-anchor="start">+ confidence score</text>
+      <rect x="120" y="210" width="140" height="24" rx="4" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="190" y="227" text-anchor="middle">same plan → same records, always</text>
+    </svg>`
+  },
+  {
+    label: "Selection",
+    badge: "Stage 3 — record selection",
+    title: "Signal from noise. The grounding mechanism.",
+    body: `Record selection is <strong>the critical middle layer</strong> — and the core architectural contribution of NNLM. It takes the full retrieval set and determines which records are actually relevant, how strongly each supports an answer, and whether there is sufficient evidence to respond at all. It operates on <strong>NAM's rich metadata</strong> — ontology alignment, match geometry, confidence — not just text content. A learned model combines these signals into a relevance decision that heuristic rules cannot replicate. <strong>If no records pass the threshold, the pipeline produces a rejection.</strong> The generation model never sees irrelevant records because they are removed here.`,
+    svg: `<svg width="100%" viewBox="0 0 440 280">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="100" width="80" height="36" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="60" y="116" text-anchor="middle">candidates</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#4A6080" x="60" y="130" text-anchor="middle">+ metadata</text>
+      <line x1="100" y1="118" x2="118" y2="118" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="120" y="60" width="150" height="116" rx="6" fill="#0A1428" stroke="#8B5CF6" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="13" font-weight="500" fill="#EEF5FF" x="195" y="88" text-anchor="middle">Selection</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="195" y="104" text-anchor="middle">TabTransformer</text>
+      <line x1="136" y1="114" x2="256" y2="114" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="136" y="132" text-anchor="start">ontology alignment</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="136" y="148" text-anchor="start">match geometry</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="136" y="164" text-anchor="start">per-record score</text>
+      <line x1="270" y1="100" x2="295" y2="78" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="270" y1="136" x2="295" y2="200" stroke="#F87171" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="297" y="52" width="120" height="50" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="357" y="74" text-anchor="middle">selected records</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="357" y="92" text-anchor="middle">→ generation</text>
+      <rect x="297" y="178" width="120" height="50" rx="5" fill="#0A1428" stroke="#F87171" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="357" y="200" text-anchor="middle">rejection</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="357" y="218" text-anchor="middle">insufficient evidence</text>
+      <rect x="120" y="210" width="150" height="24" rx="4" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F59E0B" x="195" y="227" text-anchor="middle">threshold: configurable, fixed, auditable</text>
+    </svg>`
+  },
+  {
+    label: "Generation",
+    badge: "Stage 4 — generation model",
+    title: "Structure becomes language. Within bounds.",
+    body: `The generation model receives <strong>conditioned input from selection</strong> — not raw text with documents pasted in. Learned embeddings from the selection stage are injected as <strong>soft prompts</strong>, carrying structured relevance signals directly. The model generates within the boundary defined by selected evidence and produces <strong>citation markers as first-class output tokens</strong>, not post-processing. Every factual claim is tagged with the specific record that supports it. <strong>Controlled variability in expression, not in substance</strong> — the same evidence may be phrased differently, but the citations and factual content remain anchored to the same records.`,
+    svg: `<svg width="100%" viewBox="0 0 440 270">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="70" width="80" height="36" rx="4" fill="#0A1428" stroke="#22D3A5" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="60" y="85" text-anchor="middle">selected</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="60" y="99" text-anchor="middle">records</text>
+      <rect x="20" y="130" width="80" height="36" rx="4" fill="#0A1428" stroke="#8B5CF6" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="60" y="145" text-anchor="middle">soft prompt</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="60" y="159" text-anchor="middle">embeddings</text>
+      <line x1="100" y1="88" x2="128" y2="110" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="100" y1="148" x2="128" y2="130" stroke="#8B5CF6" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="130" y="78" width="150" height="84" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="13" font-weight="500" fill="#EEF5FF" x="205" y="104" text-anchor="middle">Generation</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="205" y="120" text-anchor="middle">T5 fine-tuned</text>
+      <line x1="148" y1="130" x2="262" y2="130" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="148" text-anchor="start">constrained to evidence</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="148" y="160" text-anchor="start">citation tokens inline</text>
+      <line x1="280" y1="120" x2="308" y2="90" stroke="#22D3A5" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="280" y1="140" x2="308" y2="180" stroke="#F87171" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="310" y="62" width="110" height="56" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="365" y="84" text-anchor="middle">cited response</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="365" y="101" text-anchor="middle">every claim cited</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="365" y="113" text-anchor="middle">structurally</text>
+      <rect x="310" y="160" width="110" height="40" rx="5" fill="#0A1428" stroke="#F87171" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="365" y="178" text-anchor="middle">rejection</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="365" y="193" text-anchor="middle">first-class output</text>
+      <rect x="130" y="200" width="150" height="24" rx="4" fill="rgba(14,165,233,0.06)" stroke="rgba(14,165,233,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="205" y="217" text-anchor="middle">variability in expression, not substance</text>
+    </svg>`
+  },
+  {
+    label: "Full pipeline",
+    badge: "End to end",
+    title: "Four stages. One guarantee.",
+    body: `The complete NNLM pipeline: <strong>encode → retrieve → select → generate</strong>. Each stage has a clear input contract, a clear output contract, and observable boundaries. No stage has visibility into the internals of another — each operates on the output of the previous stage, nothing more. A wrong answer can be traced to the exact stage that failed: bad query plan (encoder), missing records (NAM coverage), wrong records kept (selection), poor citation (generation). <strong>The pipeline is the architecture. The contracts are the guarantees.</strong>`,
+    svg: `<svg width="100%" viewBox="0 0 440 300">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="32" width="80" height="36" rx="5" fill="#0A1428" stroke="#1E3060" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#7A9CC4" x="60" y="55" text-anchor="middle">user query</text>
+      <line x1="100" y1="50" x2="118" y2="50" stroke="#7A9CC4" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="120" y="20" width="90" height="60" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="165" y="46" text-anchor="middle">Encoding</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="165" y="62" text-anchor="middle">entity · intent</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="165" y="72" text-anchor="middle">query plan</text>
+      <line x1="210" y1="50" x2="228" y2="50" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="230" y="20" width="90" height="60" rx="6" fill="#0A1428" stroke="#1D9E75" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="275" y="46" text-anchor="middle">Retrieval</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="275" y="62" text-anchor="middle">NAM navigate</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="275" y="72" text-anchor="middle">candidates</text>
+      <line x1="320" y1="50" x2="338" y2="50" stroke="#1D9E75" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="340" y="20" width="90" height="60" rx="6" fill="#0A1428" stroke="#8B5CF6" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="385" y="46" text-anchor="middle">Selection</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="385" y="62" text-anchor="middle">score · filter</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="385" y="72" text-anchor="middle">evidence</text>
+      <line x1="385" y1="80" x2="385" y2="108" stroke="#8B5CF6" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="340" y="110" width="90" height="60" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="385" y="136" text-anchor="middle">Generation</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="385" y="152" text-anchor="middle">cited response</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="385" y="162" text-anchor="middle">or rejection</text>
+      <line x1="340" y1="140" x2="318" y2="140" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="200" y="110" width="116" height="60" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="258" y="136" text-anchor="middle">User</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="258" y="152" text-anchor="middle">cited response</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="258" y="162" text-anchor="middle">or rejection</text>
+      <rect x="40" y="210" width="360" height="60" rx="6" fill="#070F20" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#4A6080" x="220" y="233" text-anchor="middle">per-stage observability</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="80" y="252" text-anchor="middle">encoding quality</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="180" y="252" text-anchor="middle">retrieval coverage</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="280" y="252" text-anchor="middle">selection precision</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="375" y="252" text-anchor="middle">citation accuracy</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="220" y="266" text-anchor="middle">per-stage latency · per-stage training · per-stage debugging</text>
+    </svg>`
+  }
+];
+
+let cur = 0;
+
+function render() {
+  const s = stages[cur];
+  document.getElementById('stage-nav').innerHTML = stages.map((st,i) =>
+    `<div class="stage-pill${i===cur?' active':''}" onclick="goto(${i})">${st.label}</div>`
+  ).join('');
+  document.getElementById('diagram-svg').innerHTML = s.svg;
+  document.getElementById('dim-badge').textContent = s.badge;
+  document.getElementById('explain-title').textContent = s.title;
+  document.getElementById('explain-body').innerHTML = s.body;
+  const pct = ((cur+1)/stages.length)*100;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent = `${cur+1} of ${stages.length}  ·  ${s.label}`;
+  document.getElementById('prev-btn').style.opacity = cur===0 ? '0.3':'1';
+  document.getElementById('next-btn').textContent = cur===stages.length-1 ? '↺ Start over':'Next →';
+}
+
+function goto(i) { cur=i; render(); }
+function move(d) { cur=(cur+d+stages.length)%stages.length; render(); }
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesseract — CIQ Brief</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap');
+  :root {
+    --navy: #0D1B3E; --navy-mid: #152345; --navy-light: #1E3060;
+    --teal: #0EA5E9; --teal-dim: #0369A1; --amber: #F59E0B;
+    --green: #22D3A5; --white: #FFFFFF; --ice: #E8F1FD;
+    --muted: #7A9CC4; --dark: #060E20;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); color: var(--ice); font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.6; }
+  .page { width: 800px; margin: 0 auto; padding: 44px 52px; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--navy-light); }
+  .logo { font-family: 'DM Mono', monospace; font-size: 24px; letter-spacing: 6px; color: var(--white); line-height: 1; }
+  .logo-sub { font-size: 10px; color: var(--teal); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .header-right { text-align: right; }
+  .header-label { font-size: 9px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 2px; }
+  .header-value { font-size: 12px; color: var(--ice); margin-bottom: 6px; }
+
+  .lead { background: var(--navy-mid); border-left: 4px solid var(--teal); padding: 18px 22px; margin-bottom: 26px; border-radius: 0 4px 4px 0; }
+  .lead p { font-family: 'DM Serif Display', serif; font-size: 16.5px; color: var(--white); line-height: 1.5; }
+  .lead p em { color: var(--teal); font-style: italic; }
+
+  .section { margin-bottom: 24px; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 8.5px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--navy-light); }
+
+  .card { background: #0A1428; border: 1px solid var(--navy-light); border-radius: 4px; padding: 14px 18px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .card-body { font-size: 11.5px; color: var(--muted); line-height: 1.65; }
+  .card-body strong { color: var(--ice); }
+
+  .stack-diagram { margin-bottom: 24px; }
+  .stack-row { display: flex; align-items: stretch; margin-bottom: 5px; border: 1px solid var(--navy-light); border-radius: 3px; overflow: hidden; background: #0A1428; }
+  .stack-accent { width: 5px; flex-shrink: 0; }
+  .stack-label { width: 180px; flex-shrink: 0; padding: 10px 14px; border-right: 1px solid var(--navy-light); display: flex; flex-direction: column; justify-content: center; }
+  .stack-label strong { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--white); display: block; }
+  .stack-label span { font-size: 9px; color: var(--muted); margin-top: 2px; display: block; }
+  .stack-desc { padding: 10px 16px; font-size: 11px; color: var(--muted); flex: 1; display: flex; align-items: center; line-height: 1.55; }
+  .stack-desc strong { color: var(--ice); }
+  .stack-badge { padding: 10px 14px; display: flex; align-items: center; flex-shrink: 0; }
+  .badge { font-size: 8px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .badge.ciq { background: rgba(14,165,233,0.12); color: var(--teal); border: 1px solid rgba(14,165,233,0.3); }
+  .badge.tesseract { background: rgba(34,211,165,0.12); color: var(--green); border: 1px solid rgba(34,211,165,0.3); }
+  .badge.open { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .mini-card { background: #0A1428; border: 1px solid var(--navy-light); border-radius: 4px; padding: 12px 14px; }
+  .mini-card.teal-top { border-top: 2px solid var(--teal); }
+  .mini-card.green-top { border-top: 2px solid var(--green); }
+  .mini-title { font-size: 11px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+  .mini-body { font-size: 10.5px; color: var(--muted); line-height: 1.6; }
+  .mini-body strong { color: var(--ice); }
+
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .stat { background: #0A1428; border: 1px solid var(--navy-light); border-top: 2px solid var(--teal); border-radius: 4px; padding: 10px 12px; text-align: center; }
+  .stat-number { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--teal); line-height: 1; display: block; }
+  .stat-label { font-size: 9.5px; color: var(--white); font-weight: 600; display: block; margin-top: 3px; }
+  .stat-sub { font-size: 9px; color: var(--muted); display: block; margin-top: 1px; }
+
+  .closing { background: linear-gradient(135deg, #060E20 0%, #0A1A35 100%); border: 1px solid var(--teal-dim); border-radius: 4px; padding: 18px 22px; margin-bottom: 20px; }
+  .closing p { font-size: 12px; color: var(--muted); line-height: 1.75; }
+  .closing p strong { color: var(--white); }
+
+  .footer { padding-top: 14px; border-top: 1px solid var(--navy-light); display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+  .footer a { color: var(--teal); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">TESSERACT</div>
+      <div class="logo-sub">Deterministic AI Infrastructure</div>
+    </div>
+    <div class="header-right">
+      <div class="header-label">Prepared for</div>
+      <div class="header-value">CIQ Leadership</div>
+      <div class="header-label">Via</div>
+      <div class="header-value">Scott</div>
+    </div>
+  </div>
+
+  <!-- LEAD -->
+  <div class="lead">
+    <p>Fuzzball's Service Endpoints just unified training and inference into a single sovereign workflow. <em>The piece that completes that stack is deterministic memory</em> — retrieval that is reproducible, auditable, and works entirely inside the fence. That's what Tesseract built.</p>
+  </div>
+
+  <!-- WHERE NAM FITS IN THE FUZZBALL STACK -->
+  <div class="section">
+    <div class="section-label">Where Tesseract Fits in the Fuzzball Stack</div>
+    <div class="stack-diagram">
+      <div class="stack-row">
+        <div class="stack-accent" style="background:var(--teal);"></div>
+        <div class="stack-label"><strong>Workflow Orchestration</strong><span>Fuzzball core</span></div>
+        <div class="stack-desc">Job scheduling, data movement, GPU allocation, PBS/Slurm integration, federated cluster routing.</div>
+        <div class="stack-badge"><span class="badge ciq">CIQ / Fuzzball</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-accent" style="background:var(--teal);"></div>
+        <div class="stack-label"><strong>Training + Inference</strong><span>Service Endpoints</span></div>
+        <div class="stack-desc">Unified AI lifecycle — train as batch job, serve as persistent endpoint, access via Jupyter or API. January 2026.</div>
+        <div class="stack-badge"><span class="badge ciq">CIQ / Fuzzball</span></div>
+      </div>
+      <div class="stack-row" style="border-color: var(--green);">
+        <div class="stack-accent" style="background:var(--green);"></div>
+        <div class="stack-label"><strong>Deterministic Memory</strong><span>NAM + NNLM</span></div>
+        <div class="stack-desc"><strong>What the inference layer retrieves from.</strong> Deterministic, reproducible, fully local. Same query returns the same result across every run, every node, every environment. Knows when the answer isn't there.</div>
+        <div class="stack-badge"><span class="badge tesseract">Tesseract</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="stack-accent" style="background:var(--amber);"></div>
+        <div class="stack-label"><strong>Knowledge Retrieval</strong><span>Current gap</span></div>
+        <div class="stack-desc">How models running inside Fuzzball query simulation outputs, research corpora, proprietary documents. Vector DBs require external connectivity. RAG is non-deterministic. Neither meets scientific reproducibility requirements.</div>
+        <div class="stack-badge"><span class="badge open">Open Problem</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE SPECIFIC PROBLEM -->
+  <div class="section">
+    <div class="section-label">The Problem This Solves for Your Customers</div>
+    <div class="two-col">
+      <div class="mini-card teal-top">
+        <div class="mini-title">Reproducibility is a hard requirement</div>
+        <div class="mini-body">In scientific computing, results that change on identical inputs aren't results — they're noise. <strong>RAG and vector search are non-deterministic by design.</strong> Tesseract's retrieval navigates by geometric address. Same query, same result, every time. That's a structural property of the architecture, not a configuration option.</div>
+      </div>
+      <div class="mini-card teal-top">
+        <div class="mini-title">Airgapped means airgapped</div>
+        <div class="mini-body">Every major AI retrieval product — Pinecone, Weaviate, LangChain — calls home. <strong>Tesseract has zero external dependencies by architecture.</strong> Not by configuration. Not by an offline mode bolted on later. It was built to run inside the fence from day one. It deploys the same way Fuzzball does.</div>
+      </div>
+      <div class="mini-card green-top">
+        <div class="mini-title">The system knows what it doesn't know</div>
+        <div class="mini-body">Current AI systems hallucinate confident wrong answers. In regulated, defense, or safety-critical environments that's not a quality problem — it's a liability problem. <strong>Tesseract enforces rejection at the architecture level.</strong> If the answer isn't in the corpus, the system says so. Every claim traces to a specific source record.</div>
+      </div>
+      <div class="mini-card green-top">
+        <div class="mini-title">Full auditability by design</div>
+        <div class="mini-body">Every retrieval decision is replayable. Every generated claim cites its source record. Every query produces the same address in semantic space regardless of when or where it runs. <strong>For national labs, defense contractors, and regulated research environments — this is the difference between deployable and not.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat">
+      <span class="stat-number">500K+</span>
+      <span class="stat-label">Records</span>
+      <span class="stat-sub">in production today</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">13M+</span>
+      <span class="stat-label">Addresses</span>
+      <span class="stat-sub">indexed in NAM</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">Zero</span>
+      <span class="stat-label">Cloud deps</span>
+      <span class="stat-sub">by architecture</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">Reproducible</span>
+      <span class="stat-sub">deterministic retrieval</span>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <p>
+      Tesseract is built by <strong>Tyler Denton</strong> — Solutions Architect at ScyllaDB, former architect at Couchbase, Rockset, and StarTree, U.S. Navy veteran. The architecture is publicly documented at <strong>github.com/tdenton8772/nam-documentation</strong>.
+    </p>
+    <p style="margin-top:12px;">
+      I'll be direct. <strong>I know what this technology does. I don't yet fully understand where it fits in your world.</strong> The conversation Scott set up is the right starting point — I'd rather understand how Fuzzball works and what your customers are actually running into than walk in with assumptions. If there's a real opening here we figure that out together. If there isn't, that's worth knowing too.
+    </p>
+    <p style="margin-top: 12px;">
+      <strong>I'd rather listen first.</strong>
+    </p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>TESSERACT · FOR CIQ LEADERSHIP · CONFIDENTIAL</div>
+    <div><a href="https://github.com/tdenton8772/nam-documentation">github.com/tdenton8772/nam-documentation</a></div>
+  </div>
+
+</div>
+</body>
+</html>
