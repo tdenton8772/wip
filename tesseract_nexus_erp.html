@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesseract — Nexus ERP: AI-Driven Integration Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:     #0D1B3E;
+    --navy-mid: #152345;
+    --navy-lgt: #1E3060;
+    --teal:     #0EA5E9;
+    --teal-dim: #0369A1;
+    --amber:    #F59E0B;
+    --green:    #22D3A5;
+    --green-dk: #0F6E56;
+    --green-mid:#1D9E75;
+    --white:    #FFFFFF;
+    --ice:      #EEF5FF;
+    --muted:    #7A9CC4;
+    --dark:     #060E20;
+    --purple:   #8B5CF6;
+    --purple-dk:#6D28D9;
+    --coral:    #F87171;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--navy); color:var(--ice); font-family:'DM Sans',sans-serif; font-size:13px; line-height:1.6; }
+  .page { width:940px; margin:0 auto; padding:48px 56px 56px; }
+
+  /* HEADER */
+  .header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px; padding-bottom:20px; border-bottom:1px solid var(--navy-lgt); }
+  .logo { font-family:'DM Mono',monospace; font-size:22px; letter-spacing:7px; color:var(--white); line-height:1; }
+  .logo-sub { font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:2.5px; color:var(--teal); text-transform:uppercase; margin-top:5px; }
+  .doc-title { font-family:'DM Serif Display',serif; font-size:13px; color:var(--muted); font-style:italic; text-align:right; }
+  .doc-sub { font-family:'DM Mono',monospace; font-size:9px; color:var(--navy-lgt); letter-spacing:1px; margin-top:3px; text-align:right; }
+
+  /* LEAD */
+  .lead { margin-bottom:36px; }
+  .lead-eyebrow { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); margin-bottom:10px; }
+  .lead-title { font-family:'DM Serif Display',serif; font-size:28px; color:var(--white); line-height:1.25; margin-bottom:12px; }
+  .lead-title em { color:var(--teal); font-style:italic; }
+  .lead-body { font-size:13px; color:var(--muted); max-width:720px; line-height:1.75; }
+  .lead-body strong { color:var(--ice); font-weight:500; }
+
+  /* SECTION LABEL */
+  .section-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--navy-lgt); }
+
+  /* STAGE NAV */
+  .stage-nav { display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap; }
+  .stage-pill { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.5px; padding:5px 14px; border-radius:20px; border:1px solid var(--navy-lgt); color:var(--muted); background:transparent; cursor:pointer; transition:all .18s; user-select:none; }
+  .stage-pill:hover { border-color:var(--teal-dim); color:var(--teal); }
+  .stage-pill.active { background:rgba(14,165,233,0.1); border-color:var(--teal); color:var(--teal); }
+
+  /* DIAGRAM PANEL */
+  .diagram-panel { display:grid; grid-template-columns:1fr 360px; gap:28px; margin-bottom:36px; align-items:start; }
+  .diagram-svg-wrap { background:#070F20; border:1px solid var(--navy-lgt); border-radius:8px; padding:24px; min-height:300px; display:flex; align-items:center; justify-content:center; }
+  .diagram-svg-wrap svg { width:100%; height:auto; }
+  .diagram-explain { padding-top:4px; }
+  .dim-badge { display:inline-block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:3px 10px; border-radius:3px; background:rgba(34,211,165,0.1); border:1px solid rgba(34,211,165,0.25); color:var(--green); text-transform:uppercase; margin-bottom:12px; }
+  .explain-title { font-family:'DM Serif Display',serif; font-size:21px; color:var(--white); margin-bottom:10px; line-height:1.3; }
+  .explain-body { font-size:12px; color:var(--muted); line-height:1.85; }
+  .explain-body strong { color:var(--ice); font-weight:500; }
+  .explain-body em { color:var(--teal); font-style:italic; }
+  .explain-body .mono { font-family:'DM Mono',monospace; font-size:10.5px; color:var(--green); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom:24px; }
+  .progress-track { height:2px; background:var(--navy-lgt); border-radius:1px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--teal); border-radius:1px; transition:width .3s ease; }
+  .progress-label { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; margin-top:6px; }
+
+  /* NAV */
+  .nav-row { display:flex; gap:10px; margin-top:20px; }
+  .nav-btn { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.5px; padding:8px 20px; border-radius:4px; border:1px solid var(--navy-lgt); background:transparent; color:var(--muted); cursor:pointer; transition:all .18s; }
+  .nav-btn:hover { border-color:var(--teal); color:var(--teal); }
+  .nav-btn.primary { background:rgba(14,165,233,0.1); border-color:var(--teal); color:var(--teal); }
+
+  /* CONNECTOR GRID */
+  .conn-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:36px; }
+  .conn-card { background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:14px 16px; }
+  .conn-card.intacct  { border-top:2px solid var(--teal); }
+  .conn-card.dynamics { border-top:2px solid var(--purple); }
+  .conn-card.sap      { border-top:2px solid var(--amber); }
+  .conn-card.netsuite { border-top:2px solid var(--green); }
+  .conn-card.oracle   { border-top:2px solid var(--coral); }
+  .conn-card.custom   { border-top:2px solid var(--muted); border-style:dashed; border-bottom:1px solid var(--navy-lgt); border-left:1px solid var(--navy-lgt); border-right:1px solid var(--navy-lgt); }
+  .conn-name { font-size:13px; font-weight:500; color:var(--white); margin-bottom:4px; }
+  .conn-auth { font-family:'DM Mono',monospace; font-size:10px; margin-bottom:8px; }
+  .conn-card.intacct  .conn-auth { color:var(--teal); }
+  .conn-card.dynamics .conn-auth { color:var(--purple); }
+  .conn-card.sap      .conn-auth { color:var(--amber); }
+  .conn-card.netsuite .conn-auth { color:var(--green); }
+  .conn-card.oracle   .conn-auth { color:var(--coral); }
+  .conn-card.custom   .conn-auth { color:var(--muted); }
+  .conn-body { font-size:11px; color:var(--muted); line-height:1.65; }
+  .conn-body strong { color:var(--ice); font-weight:500; }
+
+  /* NAM STORAGE GRID */
+  .nam-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:36px; }
+  .nam-card { background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:14px 16px; }
+  .nam-card.green { border-left:3px solid var(--green); }
+  .nam-card.teal { border-left:3px solid var(--teal); }
+  .nam-card.amber { border-left:3px solid var(--amber); }
+  .nam-card.coral { border-left:3px solid var(--coral); }
+  .nam-title { font-size:12px; font-weight:500; color:var(--white); margin-bottom:5px; display:flex; align-items:center; gap:10px; }
+  .nam-key { font-family:'DM Mono',monospace; font-size:10px; padding:2px 7px; border-radius:3px; }
+  .nam-card.green .nam-key { background:rgba(34,211,165,0.1); border:1px solid rgba(34,211,165,0.25); color:var(--green); }
+  .nam-card.teal  .nam-key { background:rgba(14,165,233,0.1); border:1px solid rgba(14,165,233,0.25); color:var(--teal); }
+  .nam-card.amber .nam-key { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:var(--amber); }
+  .nam-card.coral .nam-key { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); color:var(--coral); }
+  .nam-body { font-size:11.5px; color:var(--muted); line-height:1.7; }
+  .nam-body strong { color:var(--ice); font-weight:500; }
+
+  /* VS TABLE */
+  .vs-section { margin-bottom:36px; }
+  .vs-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .vs-table th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; padding:8px 14px; text-align:left; }
+  .vs-table th:first-child { background:var(--navy-lgt); color:var(--muted); width:200px; }
+  .vs-table th:nth-child(2) { background:#2A1800; color:var(--amber); }
+  .vs-table th:nth-child(3) { background:rgba(14,100,70,0.3); color:var(--green); }
+  .vs-table td { padding:9px 14px; border-bottom:1px solid var(--navy-lgt); vertical-align:top; font-size:11.5px; }
+  .vs-table tr:nth-child(even) td { background:rgba(10,20,40,0.3); }
+  .vs-table td:first-child { color:var(--ice); font-weight:500; }
+  .vs-table td:nth-child(2) { color:var(--muted); }
+  .vs-table td:nth-child(3) { color:var(--muted); }
+  .vs-table td strong { color:var(--ice); font-weight:500; }
+  .cross-text { color:var(--amber); }
+  .check-text { color:var(--green); }
+
+  /* STACK ROW */
+  .stack-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:36px; }
+  .stack-card { background:#070F20; border:1px solid var(--navy-lgt); border-radius:6px; padding:12px 14px; }
+  .stack-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:6px; }
+  .stack-name { font-size:12px; font-weight:500; color:var(--white); margin-bottom:3px; }
+  .stack-detail { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); line-height:1.5; }
+
+  /* FOOTER */
+  .footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--navy-lgt); display:flex; justify-content:space-between; align-items:center; }
+  .footer-left { font-family:'DM Mono',monospace; font-size:9px; color:var(--navy-lgt); letter-spacing:1px; }
+  .footer-right a { font-family:'DM Mono',monospace; font-size:9px; color:var(--teal); text-decoration:none; letter-spacing:.5px; }
+
+  @media print {
+    body { background:var(--navy); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .page { padding:32px 40px; }
+    .nav-row, .stage-nav { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">TESSERACT</div>
+      <div class="logo-sub">Deterministic AI Infrastructure</div>
+    </div>
+    <div>
+      <div class="doc-title">Nexus ERP — AI-Driven Integration Platform</div>
+      <div class="doc-sub">Pluggable Connectors · Grounded Mapping · Self-Healing Pipelines</div>
+    </div>
+  </div>
+
+  <!-- LEAD -->
+  <div class="lead">
+    <div class="lead-eyebrow">What NAM makes possible</div>
+    <div class="lead-title">ERP integration that learns,<br><em>because the system has memory.</em></div>
+    <div class="lead-body">
+      Nexus ERP is a bidirectional integration platform — Sage Intacct, Dynamics 365, SAP S/4HANA, NetSuite, Oracle ERP Cloud, or any custom plugin — connected through a single AI-driven transformation layer. <strong>Every schema, every approved mapping, every drift event, every sync failure is written to NAM as an addressable record.</strong> When the agent proposes a new mapping or heals a broken one, it does so with NNLM-grounded context drawn from the platform's full operational memory. <strong>No hallucinated field names. No re-discovering what the system has already learned.</strong>
+    </div>
+  </div>
+
+  <!-- STAGE PILLS -->
+  <div class="stage-nav" id="stage-nav"></div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label"></div>
+  </div>
+
+  <!-- DIAGRAM PANEL -->
+  <div class="diagram-panel">
+    <div class="diagram-svg-wrap" id="diagram-svg"></div>
+    <div class="diagram-explain">
+      <div class="dim-badge" id="dim-badge"></div>
+      <div class="explain-title" id="explain-title"></div>
+      <div class="explain-body" id="explain-body"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prev-btn" onclick="move(-1)">← Prev</button>
+        <button class="nav-btn primary" id="next-btn" onclick="move(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT NAM STORES -->
+  <div class="section-label">What NAM stores for Nexus ERP</div>
+  <div class="nam-grid">
+    <div class="nam-card teal">
+      <div class="nam-title">
+        <span>ERP entity schemas</span>
+        <span class="nam-key">schema:{connector_id}:{entity}</span>
+      </div>
+      <div class="nam-body">Every discovered schema flattened into addressable text — <strong>system, entity, field name, data type, description</strong>. Re-indexed on every discovery run. The agent retrieves these by semantic match: <em>"what field holds the invoice total?"</em> resolves to the right field across every ERP that has one.</div>
+    </div>
+    <div class="nam-card green">
+      <div class="nam-title">
+        <span>Approved field mappings</span>
+        <span class="nam-key">mapping:{pipeline_id}</span>
+      </div>
+      <div class="nam-body">When a human approves a mapping, the full <strong>source → transform → target</strong> set is written to NAM. Future proposals across <em>any</em> pipeline can retrieve and reuse them — every successful mapping informs the next, even between different ERP combinations.</div>
+    </div>
+    <div class="nam-card amber">
+      <div class="nam-title">
+        <span>Schema drift events</span>
+        <span class="nam-key">drift:{diff_id}</span>
+      </div>
+      <div class="nam-body">Each detected schema change — <strong>added, removed, or type-changed fields</strong> — is indexed alongside its connector and entity context. The healing agent retrieves prior drift events when reasoning about how to recover from a similar change.</div>
+    </div>
+    <div class="nam-card coral">
+      <div class="nam-title">
+        <span>Sync failures</span>
+        <span class="nam-key">sync_event:{pipeline_id}:{record_id}</span>
+      </div>
+      <div class="nam-body">Failed sync attempts — <strong>error message, pipeline, entity, record</strong> — are written into NAM so the healing agent has direct access to operational evidence, not just static schema definitions. Failure patterns become retrievable context.</div>
+    </div>
+  </div>
+
+  <!-- WITHOUT vs WITH -->
+  <div class="vs-section">
+    <div class="section-label">ERP integration — without NAM/NNLM, with NAM/NNLM</div>
+    <table class="vs-table">
+      <thead>
+        <tr>
+          <th>Concern</th>
+          <th>Traditional iPaaS / hand-coded</th>
+          <th>Nexus ERP on NAM + NNLM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Field mapping</td>
+          <td><span class="cross-text">Manual</span> — analyst reads two schemas, hand-writes XML/JSON map per pipeline</td>
+          <td><span class="check-text">Agent-proposed</span> — NNLM retrieves grounded schema context; LLM proposes with confidence scores</td>
+        </tr>
+        <tr>
+          <td>LLM grounding</td>
+          <td><span class="cross-text">No retrieval</span> — model hallucinates field names that may not exist</td>
+          <td><span class="check-text">Structurally constrained</span> — proposals only reference fields present in indexed schemas</td>
+        </tr>
+        <tr>
+          <td>Schema drift</td>
+          <td><span class="cross-text">Silent breakage</span> — pipeline fails when source ERP adds a field, must be debugged manually</td>
+          <td><span class="check-text">Auto-detected · auto-healed</span> — SHA-256 versioning catches drift; healing agent proposes minimum change</td>
+        </tr>
+        <tr>
+          <td>Cross-pipeline learning</td>
+          <td><span class="cross-text">None</span> — every customer/pipeline starts from zero</td>
+          <td><span class="check-text">Cumulative</span> — every approved mapping is retrievable context for the next pipeline</td>
+        </tr>
+        <tr>
+          <td>Adding a new ERP</td>
+          <td><span class="cross-text">Vendor SDK rewrite</span> — central dispatcher edits, schema mapping rebuild</td>
+          <td><span class="check-text">Plugin drop-in</span> — implement <strong>ERPConnector</strong> ABC; auto-discovered at startup</td>
+        </tr>
+        <tr>
+          <td>Generated transform code</td>
+          <td><span class="cross-text">Free Python</span> — runs in production with full filesystem and import access</td>
+          <td><span class="check-text">RestrictedPython sandbox</span> — no imports, AST-validated, whitelisted builtins only</td>
+        </tr>
+        <tr>
+          <td>Trust boundary</td>
+          <td><span class="cross-text">Opaque</span> — analyst signs off on map; no record of why it was right</td>
+          <td><span class="check-text">Human checkpoint + citations</span> — LangGraph pauses; UI shows NNLM citations alongside proposal</td>
+        </tr>
+        <tr>
+          <td>Sync loop prevention</td>
+          <td><span class="cross-text">Custom logic per pipeline</span> — easy to ping-pong records between systems</td>
+          <td><span class="check-text">ExternalIdMap + payload hash</span> — unchanged records skipped, already-synced never re-synced reverse</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CONNECTOR GRID -->
+  <div class="section-label">Pluggable connectors — implement once, drop into <span style="font-family:'DM Mono',monospace;color:var(--green);">plugins/</span></div>
+  <div class="conn-grid">
+    <div class="conn-card intacct">
+      <div class="conn-name">Sage Intacct</div>
+      <div class="conn-auth">XML API · session auth</div>
+      <div class="conn-body">Tie-breaker hub for bidirectional conflict resolution. <strong>SDK-style XML envelope</strong> with senderid/userid session credentials.</div>
+    </div>
+    <div class="conn-card dynamics">
+      <div class="conn-name">Dynamics 365</div>
+      <div class="conn-auth">MSAL OAuth2 · OData</div>
+      <div class="conn-body">Microsoft cloud auth via <strong>MSAL confidential client</strong>. OData v4 query semantics with delta token incremental sync.</div>
+    </div>
+    <div class="conn-card sap">
+      <div class="conn-name">SAP S/4HANA</div>
+      <div class="conn-auth">Basic auth · OData v4 · CSRF</div>
+      <div class="conn-body">Two-step CSRF token fetch before mutating calls. <strong>OData v4 metadata discovery</strong> populates the schema registry.</div>
+    </div>
+    <div class="conn-card netsuite">
+      <div class="conn-name">NetSuite</div>
+      <div class="conn-auth">TBA OAuth 1.0 · SuiteTalk REST</div>
+      <div class="conn-body">Token-Based Auth — <strong>HMAC-SHA256 signing per request</strong>. SuiteTalk REST surfaces records with rich metadata for indexing.</div>
+    </div>
+    <div class="conn-card oracle">
+      <div class="conn-name">Oracle ERP Cloud</div>
+      <div class="conn-auth">Basic auth · Oracle REST</div>
+      <div class="conn-body">REST API with HATEOAS link traversal. <strong>describe metadata endpoints</strong> drive automatic schema enumeration.</div>
+    </div>
+    <div class="conn-card custom">
+      <div class="conn-name">Your custom ERP</div>
+      <div class="conn-auth">your auth · your protocol</div>
+      <div class="conn-body">Implement <strong>ERPConnector</strong> abstract base class. <strong>Auto-discovered at startup.</strong> No central registry edits required.</div>
+    </div>
+  </div>
+
+  <!-- STACK ROW -->
+  <div class="section-label">Stack</div>
+  <div class="stack-row">
+    <div class="stack-card">
+      <div class="stack-label">Backend</div>
+      <div class="stack-name">FastAPI · Celery</div>
+      <div class="stack-detail">Python 3.11<br>SQLAlchemy async<br>APScheduler</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Frontend</div>
+      <div class="stack-name">Phoenix LiveView</div>
+      <div class="stack-detail">Elixir 1.16<br>LiveView 0.20<br>Tailwind CSS 3</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">AI layer</div>
+      <div class="stack-name">LangGraph · NAM · NNLM</div>
+      <div class="stack-detail">Anthropic Claude<br>RestrictedPython<br>human checkpoint</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Infra</div>
+      <div class="stack-name">PostgreSQL · Kafka · Redis</div>
+      <div class="stack-detail">PostgreSQL 15<br>Kafka + Zookeeper<br>Redis 7 · Alembic</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">TESSERACT · NEXUS ERP · AI-DRIVEN INTEGRATION PLATFORM · CONFIDENTIAL · 2026</div>
+    <div class="footer-right"><a href="https://github.com/tdenton8772/nexus-erp">github.com/tdenton8772/nexus-erp</a></div>
+  </div>
+
+</div>
+<script>
+const stages = [
+  {
+    label: "Connect",
+    badge: "Stage 1 — pluggable connector registry",
+    title: "Any ERP. Same contract.",
+    body: `Each ERP connector implements a single abstract base — <strong>ERPConnector</strong> — exposing <span class="mono">connect</span>, <span class="mono">list_entities</span>, <span class="mono">read_schema</span>, <span class="mono">fetch_records</span>, <span class="mono">push_records</span>, and <span class="mono">subscribe_to_changes</span>. <strong>Drop a Python class into <span class="mono">plugins/</span> and it is auto-discovered at startup.</strong> No central registry to edit, no factory switch statement, no rebuild. Sage Intacct, Dynamics 365, SAP S/4HANA, NetSuite, Oracle ERP Cloud are first-party — every other ERP is a plugin written against the same interface.`,
+    svg: `<svg width="100%" viewBox="0 0 440 280">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="22" width="100" height="32" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#EEF5FF" x="70" y="42" text-anchor="middle">Sage Intacct</text>
+      <rect x="20" y="62" width="100" height="32" rx="4" fill="#0A1428" stroke="#8B5CF6" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#EEF5FF" x="70" y="82" text-anchor="middle">Dynamics 365</text>
+      <rect x="20" y="102" width="100" height="32" rx="4" fill="#0A1428" stroke="#F59E0B" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#EEF5FF" x="70" y="122" text-anchor="middle">SAP S/4HANA</text>
+      <rect x="20" y="142" width="100" height="32" rx="4" fill="#0A1428" stroke="#22D3A5" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#EEF5FF" x="70" y="162" text-anchor="middle">NetSuite</text>
+      <rect x="20" y="182" width="100" height="32" rx="4" fill="#0A1428" stroke="#F87171" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#EEF5FF" x="70" y="202" text-anchor="middle">Oracle ERP</text>
+      <rect x="20" y="222" width="100" height="32" rx="4" fill="#0A1428" stroke="#7A9CC4" stroke-width="0.8" stroke-dasharray="3 2"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#7A9CC4" x="70" y="242" text-anchor="middle">custom plugin</text>
+      <line x1="120" y1="38"  x2="180" y2="130" stroke="#0EA5E9" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="120" y1="78"  x2="180" y2="135" stroke="#8B5CF6" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="120" y1="118" x2="180" y2="140" stroke="#F59E0B" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="120" y1="158" x2="180" y2="145" stroke="#22D3A5" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="120" y1="198" x2="180" y2="150" stroke="#F87171" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="120" y1="238" x2="180" y2="155" stroke="#7A9CC4" stroke-width="0.6" stroke-dasharray="3 2" marker-end="url(#arr)"/>
+      <rect x="182" y="100" width="146" height="86" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="255" y="124" text-anchor="middle">ERPConnector</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="255" y="140" text-anchor="middle">abstract base</text>
+      <line x1="200" y1="148" x2="310" y2="148" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="200" y="162" text-anchor="start">read_schema</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="200" y="174" text-anchor="start">fetch_records</text>
+      <line x1="328" y1="143" x2="350" y2="143" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="352" y="118" width="68" height="50" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="386" y="138" text-anchor="middle">registry</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="386" y="153" text-anchor="middle">auto-discover</text>
+    </svg>`
+  },
+  {
+    label: "Discover",
+    badge: "Stage 2 — schema registry",
+    title: "Walk every entity. Hash. Diff.",
+    body: `On each discovery run, the registry walks every entity exposed by the connector and reads its schema. Each schema is canonicalized and <strong>SHA-256 hashed</strong>; the hash is compared against the previous version stored in PostgreSQL. <strong>If the hash changed, a structured diff is computed</strong> — <span class="mono">{added, removed, changed}</span> at the field level — and a new schema version is recorded. The diff is what triggers downstream healing. The schema registry is the source of truth for what a connector looks like at any point in time.`,
+    svg: `<svg width="100%" viewBox="0 0 440 270">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="100" width="90" height="36" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="65" y="115" text-anchor="middle">Connector</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="65" y="129" text-anchor="middle">read_schema()</text>
+      <line x1="110" y1="118" x2="128" y2="118" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="130" y="60" width="150" height="116" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="205" y="84" text-anchor="middle">Schema Registry</text>
+      <line x1="148" y1="92" x2="262" y2="92" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="148" y="110" text-anchor="start">canonicalize</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="148" y="124" text-anchor="start">SHA-256 hash</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="148" y="138" text-anchor="start">version compare</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="148" y="152" text-anchor="start">structured diff</text>
+      <line x1="280" y1="100" x2="305" y2="78" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="280" y1="135" x2="305" y2="160" stroke="#F59E0B" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="307" y="48" width="115" height="52" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="365" y="70" text-anchor="middle">SchemaVersion</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="365" y="86" text-anchor="middle">v1, v2, v3 …</text>
+      <rect x="307" y="142" width="115" height="52" rx="5" fill="#0A1428" stroke="#F59E0B" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="365" y="164" text-anchor="middle">SchemaDiff</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F59E0B" x="365" y="180" text-anchor="middle">added/removed/changed</text>
+      <rect x="130" y="210" width="280" height="28" rx="4" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#F59E0B" x="270" y="229" text-anchor="middle">drift detected → triggers healing graph</text>
+    </svg>`
+  },
+  {
+    label: "Index (NAM)",
+    badge: "Stage 3 — schema indexer → NAM",
+    title: "Memory of every ERP, every mapping, every failure.",
+    body: `Whenever a schema is discovered, mapping approved, drift detected, or sync fails, <strong>SchemaIndexer</strong> writes an addressable record into NAM. Each record gets a deterministic key — <span class="mono">schema:{conn}:{entity}</span>, <span class="mono">mapping:{pipeline}</span>, <span class="mono">drift:{id}</span>, <span class="mono">sync_event:{pipeline}:{record}</span> — and is encoded into NAM's address space. <strong>This is what turns Nexus ERP from a stateless mapper into a learning platform.</strong> Every successful mapping a customer approves becomes retrievable context for every future mapping the agent proposes.`,
+    svg: `<svg width="100%" viewBox="0 0 440 290">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="20" width="120" height="32" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#0EA5E9" x="80" y="40" text-anchor="middle">schema:conn:entity</text>
+      <rect x="20" y="60" width="120" height="32" rx="4" fill="#0A1428" stroke="#22D3A5" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#22D3A5" x="80" y="80" text-anchor="middle">mapping:pipeline</text>
+      <rect x="20" y="100" width="120" height="32" rx="4" fill="#0A1428" stroke="#F59E0B" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#F59E0B" x="80" y="120" text-anchor="middle">drift:diff_id</text>
+      <rect x="20" y="140" width="120" height="32" rx="4" fill="#0A1428" stroke="#F87171" stroke-width="0.8"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#F87171" x="80" y="160" text-anchor="middle">sync_event:p:r</text>
+      <line x1="140" y1="36"  x2="170" y2="120" stroke="#0EA5E9" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="140" y1="76"  x2="170" y2="125" stroke="#22D3A5" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="140" y1="116" x2="170" y2="130" stroke="#F59E0B" stroke-width="0.6" marker-end="url(#arr)"/>
+      <line x1="140" y1="156" x2="170" y2="135" stroke="#F87171" stroke-width="0.6" marker-end="url(#arr)"/>
+      <rect x="172" y="78" width="120" height="80" rx="6" fill="#0A1428" stroke="#8B5CF6" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="232" y="104" text-anchor="middle">SchemaIndexer</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="232" y="120" text-anchor="middle">flatten · encode</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="232" y="134" text-anchor="middle">/v1/ingest</text>
+      <line x1="292" y1="118" x2="318" y2="118" stroke="#1D9E75" stroke-width="1.2" marker-end="url(#arr)"/>
+      <rect x="320" y="80" width="100" height="80" rx="6" fill="#0A1428" stroke="#1D9E75" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="13" font-weight="500" fill="#EEF5FF" x="370" y="106" text-anchor="middle">NAM</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="370" y="124" text-anchor="middle">port 30800</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="370" y="138" text-anchor="middle">addressable</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="370" y="150" text-anchor="middle">geometric</text>
+      <rect x="80" y="200" width="280" height="28" rx="4" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#22D3A5" x="220" y="219" text-anchor="middle">every event becomes retrievable context</text>
+      <rect x="80" y="234" width="280" height="28" rx="4" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#1D9E75" x="220" y="253" text-anchor="middle">cross-pipeline · cross-customer · cumulative</text>
+    </svg>`
+  },
+  {
+    label: "Propose (NNLM)",
+    badge: "Stage 4 — mapping_proposer node",
+    title: "Grounded retrieval, then proposal.",
+    body: `When a pipeline is configured, the LangGraph <strong>mapping_proposer</strong> node first calls NNLM with a query like <em>"field mappings between Sage Intacct Invoice and Dynamics 365 Invoice"</em>. NNLM runs its multi-agent pipeline — supervisor, entity organiser, NAM retrieval, quality gate — and returns grounded records: previously approved mappings, related schema fields, prior drift events. <strong>Only after grounding is established does the LLM see the proposal task.</strong> The Anthropic Claude call receives the source schema, target schema, and the NNLM context — and is constrained by it. The same NNLM payload is reused by <span class="mono">code_generator</span> downstream, so the retrieval is paid for once.`,
+    svg: `<svg width="100%" viewBox="0 0 440 290">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="18" y="118" width="76" height="36" rx="4" fill="#0A1428" stroke="#1E3060" stroke-width="0.8"/>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#7A9CC4" x="56" y="134" text-anchor="middle">source +</text>
+      <text font-family="DM Sans,sans-serif" font-size="10" fill="#7A9CC4" x="56" y="148" text-anchor="middle">target schema</text>
+      <line x1="94" y1="136" x2="112" y2="136" stroke="#7A9CC4" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="114" y="56" width="120" height="160" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="174" y="80" text-anchor="middle">mapping_proposer</text>
+      <line x1="130" y1="92" x2="218" y2="92" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="130" y="108" text-anchor="start">1. NNLM.encode()</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="130" y="122" text-anchor="start">   grounded ctx</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="130" y="142" text-anchor="start">2. quality gate</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="130" y="156" text-anchor="start">   sufficient?</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="130" y="176" text-anchor="start">3. Claude propose</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="130" y="190" text-anchor="start">   confidence scores</text>
+      <line x1="234" y1="100" x2="262" y2="80" stroke="#8B5CF6" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="264" y="56" width="142" height="50" rx="5" fill="#0A1428" stroke="#8B5CF6" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="335" y="76" text-anchor="middle">NNLM</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="335" y="92" text-anchor="middle">port 30001 / 30002</text>
+      <line x1="234" y1="180" x2="262" y2="200" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="264" y="178" width="142" height="50" rx="5" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="335" y="198" text-anchor="middle">Anthropic Claude</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="335" y="214" text-anchor="middle">temperature = 0</text>
+      <rect x="114" y="240" width="292" height="28" rx="4" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#22D3A5" x="260" y="259" text-anchor="middle">grounding before generation — not after</text>
+    </svg>`
+  },
+  {
+    label: "Approve",
+    badge: "Stage 5 — human checkpoint",
+    title: "LangGraph pauses. The human decides.",
+    body: `Both the <strong>schema_mapping</strong> and <strong>healing</strong> graphs compile with <span class="mono">interrupt_before=["human_checkpoint"]</span>. Execution suspends with the proposal, the NNLM citations, and the LLM's confidence scores serialised into the graph state — then a Phoenix LiveView page picks up the suspended state. The human sees the proposed mapping, the records NNLM cited, and selects <strong>approve / modify / reject</strong>. Modify loops back to a re-proposal with the human's feedback as additional NNLM context. <strong>No code is compiled or executed before approval.</strong>`,
+    svg: `<svg width="100%" viewBox="0 0 440 280">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="120" width="100" height="40" rx="5" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="70" y="138" text-anchor="middle">propose</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="70" y="152" text-anchor="middle">graph node</text>
+      <line x1="120" y1="140" x2="138" y2="140" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="140" y="100" width="140" height="80" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="210" y="124" text-anchor="middle">human_checkpoint</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="210" y="142" text-anchor="middle">interrupt_before</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="210" y="158" text-anchor="middle">Phoenix LiveView UI</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="210" y="172" text-anchor="middle">state persisted</text>
+      <line x1="280" y1="118" x2="305" y2="62" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="280" y1="140" x2="305" y2="140" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="280" y1="162" x2="305" y2="218" stroke="#F87171" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="307" y="40" width="105" height="42" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="360" y="58" text-anchor="middle">approve</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="360" y="74" text-anchor="middle">→ generate code</text>
+      <rect x="307" y="118" width="105" height="42" rx="5" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="360" y="136" text-anchor="middle">modify</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="360" y="152" text-anchor="middle">→ repropose w/ fb</text>
+      <rect x="307" y="196" width="105" height="42" rx="5" fill="#0A1428" stroke="#F87171" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="360" y="214" text-anchor="middle">reject</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="360" y="230" text-anchor="middle">→ END</text>
+      <line x1="307" y1="139" x2="120" y2="139" stroke="#0EA5E9" stroke-width="0.5" stroke-dasharray="3 3"/>
+    </svg>`
+  },
+  {
+    label: "Compile",
+    badge: "Stage 6 — code_generator + sandbox",
+    title: "From mapping to executable Python — safely.",
+    body: `Once approved, <strong>code_generator</strong> reuses the NNLM payload from the proposal and asks Claude for a pair of pure Python functions — <span class="mono">transform_forward(record, context)</span> and <span class="mono">transform_reverse(record, context)</span>. The output is fed through <strong>TransformSandbox</strong>: AST validation rejects every <span class="mono">Import</span> / <span class="mono">ImportFrom</span> node, and the code is compiled with <strong>RestrictedPython</strong> against a whitelisted builtin set — <span class="mono">round, len, str, int, isinstance, sorted</span>, etc. <strong>No filesystem access, no network, no imports.</strong> Validation failure routes back to a regeneration attempt, capped at three iterations.`,
+    svg: `<svg width="100%" viewBox="0 0 440 290">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="118" width="92" height="40" rx="4" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="66" y="135" text-anchor="middle">approved</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="66" y="150" text-anchor="middle">mappings</text>
+      <line x1="112" y1="138" x2="130" y2="138" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="132" y="100" width="118" height="80" rx="6" fill="#0A1428" stroke="#0EA5E9" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="191" y="124" text-anchor="middle">code_generator</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="191" y="142" text-anchor="middle">forward + reverse</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="191" y="158" text-anchor="middle">claude · t=0</text>
+      <line x1="250" y1="138" x2="268" y2="138" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="270" y="98" width="148" height="86" rx="6" fill="#0A1428" stroke="#F59E0B" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="344" y="120" text-anchor="middle">TransformSandbox</text>
+      <line x1="288" y1="128" x2="402" y2="128" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F59E0B" x="288" y="144" text-anchor="start">AST validate</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="288" y="156" text-anchor="start">  reject Import</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F59E0B" x="288" y="170" text-anchor="start">RestrictedPython</text>
+      <line x1="344" y1="184" x2="344" y2="208" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="270" y="208" width="148" height="44" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="344" y="226" text-anchor="middle">CompiledTransformation</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="344" y="242" text-anchor="middle">stored in PostgreSQL</text>
+      <rect x="20" y="208" width="232" height="44" rx="5" fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="136" y="226" text-anchor="middle">validation fail → regenerate</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="136" y="240" text-anchor="middle">capped at 3 attempts → END</text>
+    </svg>`
+  },
+  {
+    label: "Sync",
+    badge: "Stage 7 — pipeline runner",
+    title: "Bidirectional sync. Loops can't form.",
+    body: `<strong>PipelineRunner</strong> executes a sync cycle: fetch source records since <span class="mono">last_sync_at</span>, hash each payload, look up <strong>ExternalIdMap</strong> for prior sync state, run <strong>ConflictResolver</strong> (last-write-wins by <span class="mono">updated_at</span>; Sage Intacct as tie-breaker hub), invoke the compiled forward transform, and push to the target connector. <strong>Loop prevention</strong> sits at the centre: an unchanged payload hash means skip; a record already synced from A→B is never re-synced B→A. Every record yields a <strong>SyncEvent</strong> row — success, skipped, or failed — and failures get re-indexed into NAM as operational evidence for the healer.`,
+    svg: `<svg width="100%" viewBox="0 0 440 290">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="118" width="86" height="40" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="63" y="134" text-anchor="middle">source ERP</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="63" y="148" text-anchor="middle">fetch_records</text>
+      <line x1="106" y1="138" x2="124" y2="138" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="126" y="80" width="180" height="120" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="216" y="104" text-anchor="middle">PipelineRunner</text>
+      <line x1="142" y1="112" x2="290" y2="112" stroke="#1E3060" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="142" y="128" text-anchor="start">1. hash payload</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="142" y="142" text-anchor="start">2. ExternalIdMap lookup</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="142" y="156" text-anchor="start">3. ConflictResolver</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="142" y="170" text-anchor="start">4. transform_forward</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="142" y="184" text-anchor="start">5. push_records</text>
+      <line x1="306" y1="140" x2="324" y2="140" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="326" y="118" width="92" height="40" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="372" y="134" text-anchor="middle">target ERP</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="372" y="148" text-anchor="middle">push_records</text>
+      <rect x="20" y="218" width="180" height="44" rx="5" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="110" y="236" text-anchor="middle">unchanged hash → skipped</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="110" y="250" text-anchor="middle">A→B already synced → no B→A</text>
+      <rect x="218" y="218" width="200" height="44" rx="5" fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F87171" x="318" y="236" text-anchor="middle">SyncEvent.failed → NAM</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="318" y="250" text-anchor="middle">indexed as operational evidence</text>
+    </svg>`
+  },
+  {
+    label: "Heal",
+    badge: "Stage 8 — healing graph",
+    title: "When schemas drift, the platform repairs itself.",
+    body: `When the schema registry detects drift, the <strong>healing_graph</strong> launches: <span class="mono">drift_detector</span> calls NNLM with the diff context, retrieves prior drift events and related approved mappings, then <span class="mono">healer</span> asks Claude for the <strong>minimum mapping change</strong> that restores correctness — not a rewrite. The proposal goes through the same human checkpoint as initial mappings; on approval, the same code generator and sandbox compile the patched transform. <strong>The healer's quality is bounded by NAM coverage.</strong> The richer the platform's memory of past mappings and prior drifts, the better its proposals — Nexus ERP gets better at integration the more it integrates.`,
+    svg: `<svg width="100%" viewBox="0 0 440 300">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="20" y="20" width="92" height="36" rx="4" fill="#0A1428" stroke="#F59E0B" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="66" y="36" text-anchor="middle">schema</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#F59E0B" x="66" y="50" text-anchor="middle">drift detected</text>
+      <line x1="66" y1="56" x2="66" y2="74" stroke="#F59E0B" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="20" y="76" width="92" height="40" rx="4" fill="#0A1428" stroke="#8B5CF6" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="66" y="92" text-anchor="middle">drift_detector</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#8B5CF6" x="66" y="106" text-anchor="middle">NNLM.encode</text>
+      <line x1="66" y1="116" x2="66" y2="134" stroke="#8B5CF6" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="20" y="136" width="92" height="40" rx="4" fill="#0A1428" stroke="#0EA5E9" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" fill="#EEF5FF" x="66" y="152" text-anchor="middle">healer</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#0EA5E9" x="66" y="166" text-anchor="middle">minimum change</text>
+      <line x1="112" y1="156" x2="138" y2="156" stroke="#0EA5E9" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="140" y="118" width="120" height="76" rx="6" fill="#0A1428" stroke="#1D9E75" stroke-width="1.2"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="200" y="142" text-anchor="middle">NAM</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="200" y="158" text-anchor="middle">prior drifts</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="200" y="172" text-anchor="middle">prior mappings</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="200" y="186" text-anchor="middle">prior failures</text>
+      <line x1="260" y1="156" x2="286" y2="156" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="288" y="118" width="120" height="76" rx="6" fill="#0A1428" stroke="#22D3A5" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="348" y="142" text-anchor="middle">human</text>
+      <text font-family="DM Sans,sans-serif" font-size="12" font-weight="500" fill="#EEF5FF" x="348" y="158" text-anchor="middle">checkpoint</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#7A9CC4" x="348" y="178" text-anchor="middle">same flow as init</text>
+      <line x1="348" y1="194" x2="348" y2="216" stroke="#22D3A5" stroke-width="1" marker-end="url(#arr)"/>
+      <rect x="288" y="218" width="120" height="44" rx="5" fill="#0A1428" stroke="#22D3A5" stroke-width="1"/>
+      <text font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="#EEF5FF" x="348" y="236" text-anchor="middle">patched transform</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#22D3A5" x="348" y="252" text-anchor="middle">recompiled · live</text>
+      <rect x="20" y="218" width="240" height="44" rx="5" fill="rgba(34,211,165,0.06)" stroke="rgba(34,211,165,0.2)" stroke-width="0.5"/>
+      <text font-family="DM Mono,monospace" font-size="10" fill="#22D3A5" x="140" y="236" text-anchor="middle">platform improves with use</text>
+      <text font-family="DM Mono,monospace" font-size="9" fill="#1D9E75" x="140" y="252" text-anchor="middle">richer memory → better healing</text>
+    </svg>`
+  }
+];
+
+let cur = 0;
+
+function render() {
+  const s = stages[cur];
+  document.getElementById('stage-nav').innerHTML = stages.map((st,i) =>
+    `<div class="stage-pill${i===cur?' active':''}" onclick="goto(${i})">${st.label}</div>`
+  ).join('');
+  document.getElementById('diagram-svg').innerHTML = s.svg;
+  document.getElementById('dim-badge').textContent = s.badge;
+  document.getElementById('explain-title').textContent = s.title;
+  document.getElementById('explain-body').innerHTML = s.body;
+  const pct = ((cur+1)/stages.length)*100;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent = `${cur+1} of ${stages.length}  ·  ${s.label}`;
+  document.getElementById('prev-btn').style.opacity = cur===0 ? '0.3' : '1';
+  document.getElementById('next-btn').textContent = cur===stages.length-1 ? '↺ Start over' : 'Next →';
+}
+
+function goto(i) { cur=i; render(); }
+function move(d) { cur=(cur+d+stages.length)%stages.length; render(); }
+
+render();
+</script>
+</body>
+</html>
